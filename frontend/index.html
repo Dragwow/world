@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Мировое господство</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <div id="root" class="h-screen w-screen"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const API = "http://localhost:8080/api";
+
+        const api = async (path, method = "POST", body = null) => {
+            const opts = { method, headers: { "Content-Type": "application/json" } };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(API + path, opts);
+            const text = await res.text();
+            if (!res.ok) throw new Error(text || "API error");
+            return text ? JSON.parse(text) : null;
+        };
+
+        function App() {
+            const [username, setUsername] = useState("");
+            const [password, setPassword] = useState("");
+            const [role, setRole] = useState("");
+            const [selectedCountry, setSelectedCountry] = useState(null);
+            const [view, setView] = useState("login");
+
+            const countriesList = ["USA", "GERMANY", "CHINA", "IRAN", "NORTH_KOREA", "ISRAEL"];
+
+            const login = async () => {
+                if (!username || !password) return alert("Введите ник и пароль");
+                try {
+                    const res = await api("/enter", "POST", { username, password });
+                    const data = res.data;
+                    setRole(data.role);
+                    setUsername(data.username);
+
+                    if (data.role === "ADMIN") {
+                        setView("admin");
+                        return;
+                    }
+
+                    setView("country-select");
+                } catch (e) {
+                    console.error(e);
+                    alert("Ошибка входа: " + e.message);
+                }
+            };
+
+            const chooseCountry = async () => {
+                if (!selectedCountry) return alert("Выберите страну");
+                try {
+                    await api("/enter/country", "POST", { username, countryEnum: selectedCountry });
+                    setView("user");
+                } catch (e) {
+                    console.error(e);
+                    alert("Ошибка выбора страны: " + e.message);
+                }
+            };
+
+            if (view === "login") return (
+                <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
+                    <div className="flex gap-8 bg-white p-10 rounded shadow-lg w-full max-w-5xl">
+                        <div className="flex flex-col gap-4 flex-1">
+                            <h2 className="text-xl font-bold">Вход</h2>
+                            <input type="text" placeholder="Ник" className="border px-2 py-1 w-full"
+                                value={username} onChange={e => setUsername(e.target.value)} />
+                            <input type="password" placeholder="Пароль" className="border px-2 py-1 w-full"
+                                value={password} onChange={e => setPassword(e.target.value)} />
+                            <button className="bg-blue-600 text-white py-2 rounded w-full"
+                                onClick={login}>Сохранить</button>
+                        </div>
+                        <div className="flex flex-col gap-2 flex-1">
+                            <h2 className="text-xl font-bold">Выбор страны</h2>
+                            <p className="text-gray-500">Сначала введите ник и пароль</p>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            if (view === "country-select") return (
+                <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
+                    <div className="flex gap-8 w-full max-w-6xl p-10 bg-white rounded shadow-lg">
+                        <div className="flex flex-col gap-4 flex-1">
+                            <h2 className="text-xl font-bold">Пользователь: {username}</h2>
+                            <p>Выберите страну:</p>
+                            <div className="grid grid-cols-3 gap-3">
+                                {countriesList.map(c => (
+                                    <button key={c}
+                                        className={`px-3 py-2 rounded ${selectedCountry === c ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'}`}
+                                        onClick={() => setSelectedCountry(c)}>
+                                        {c}
+                                    </button>
+                                ))}
+                            </div>
+                            <button className="bg-blue-600 text-white py-2 rounded mt-4 w-40"
+                                onClick={chooseCountry}>Перейти</button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            if (view === "user") return <UserPanel username={username} />;
+            if (view === "admin") return <AdminPanel />;
+
+            return <div>Загрузка...</div>;
+        }
+
+        function UserPanel({ username }) {
+            const [panel, setPanel] = useState(null);
+
+            useEffect(() => {
+                if (!username) return;
+
+                const loadPanel = async () => {
+                    try {
+                        const res = await fetch(`${API}/user/country/country-panel/${username}?t=${Date.now()}`);
+                        const json = await res.json();
+                        setPanel(json?.data || { cities: [], name: "", nukes: 0, sanctions: 0, budget: 0 });
+                    } catch (e) {
+                        console.error(e);
+                        setPanel({ cities: [], name: "", nukes: 0, sanctions: 0, budget: 0 });
+                    }
+                };
+
+                // Загружаем сразу
+                loadPanel();
+
+                // Таймер для автоматического обновления каждые 2 секунды
+                const interval = setInterval(loadPanel, 2000);
+                return () => clearInterval(interval);
+            }, [username]);
+
+            if (!panel) return <div className="p-5">Загрузка...</div>;
+
+            return (
+                <div className="p-6 h-screen overflow-y-auto">
+                    <h2 className="text-2xl font-bold">{panel.name}</h2>
+                    <p>💰 Бюджет: {panel.budget}</p>
+                    <p>💣 Ядер: {panel.nukes}</p>
+                    <p>🚫 Санкций: {panel.sanctions}</p>
+                    <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        {panel.cities.map(c => (
+                            <div key={c.city} className="border p-3 bg-white rounded">
+                                <b>{c.name} {c.destroyed && "💥"}</b>
+                                <div>Экономика: {c.economy}</div>
+                                <div>Экология: {c.ecology}</div>
+                                <div>Щит: {c.shield}</div>
+                                <div>Доход: {c.income}</div>
+                                <div>Жизнь: {c.life}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function AdminPanel() {
+            const [countries, setCountries] = React.useState([]);
+
+            const loadCountries = async () => {
+                try {
+                    const res = await fetch(`${API}/admin/get-all-countries?t=${Date.now()}`);
+                    const json = await res.json();
+                    setCountries(json?.data?.content || json || []);
+                } catch (e) {
+                    console.error(e);
+                    setCountries([]);
+                }
+            };
+
+            React.useEffect(() => {
+                loadCountries();
+                const interval = setInterval(loadCountries, 2000);
+                return () => clearInterval(interval);
+            }, []);
+
+            const changeStat = async (cityEnum, key, value) => {
+                try {
+                    await api("/admin/add-stat", "POST", { cityEnum, key, value });
+                    loadCountries();
+                } catch (e) {
+                    console.error(e);
+                    alert("Ошибка изменения стата: " + e.message);
+                }
+            };
+
+            const changeCountryValue = async (countryEnum, type, amount) => {
+                try {
+                    const endpoint = type === "NUKE" ? "/admin/add-nuke" : "/admin/add-sanctional";
+                    await api(endpoint, "POST", { countryEnum, amount });
+                    loadCountries();
+                } catch (e) {
+                    console.error(e);
+                    alert("Ошибка изменения страны: " + e.message);
+                }
+            };
+
+            if (countries.length === 0) return <div className="p-6">Загрузка...</div>;
+
+            return (
+                <div className="p-6 h-screen overflow-y-auto">
+                    <h1 className="text-2xl font-bold mb-4">Админ-панель</h1>
+                    {countries.map(c => (
+                        <div key={c.name} className="bg-white p-4 shadow mb-4 rounded">
+                            <h2 className="font-bold text-xl">{c.name}</h2>
+
+                            {/* Бюджет, Ядер, Санкции с кнопками */}
+                            <div className="flex gap-4 mt-2 items-center">
+                                <p>💰 Бюджет: {c.budget}</p>
+                                <button className="bg-green-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "BUDGET", 100)}>+100</button>
+                                <button className="bg-red-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "BUDGET", -100)}>-100</button>
+                            </div>
+                            <div className="flex gap-4 mt-2 items-center">
+                                <p>💣 Ядер: {c.nukes}</p>
+                                <button className="bg-green-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "NUKE", 1)}>+1</button>
+                                <button className="bg-red-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "NUKE", -1)}>-1</button>
+                            </div>
+                            <div className="flex gap-4 mt-2 items-center">
+                                <p>🚫 Санкций: {c.sanctions}</p>
+                                <button className="bg-green-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "SANCTION", 1)}>+1</button>
+                                <button className="bg-red-500 text-white px-2 rounded"
+                                    onClick={() => changeCountryValue(c.name, "SANCTION", -1)}>-1</button>
+                            </div>
+
+                            {/* Города */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                {[...c.cities].sort((a,b) => a.name.localeCompare(b.name)).map(city => (
+                                    <div key={city.id} className="border p-3 rounded bg-gray-50">
+                                        <b>{city.name}</b>
+                                        <div className="mt-2">
+                                            <div>Экономика: {city.economy}</div>
+                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                                defaultValue={city.economy}
+                                                onBlur={e => changeStat(city.city, "ECONOMY", parseInt(e.target.value))} />
+                                        </div>
+                                        <div className="mt-2">
+                                            <div>Экология: {city.ecology}</div>
+                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                                defaultValue={city.ecology}
+                                                onBlur={e => changeStat(city.city, "ECOLOGY", parseInt(e.target.value))} />
+                                        </div>
+                                        <div className="mt-2">
+                                            <div>Щит: {city.shield}</div>
+                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                                defaultValue={city.shield}
+                                                onBlur={e => changeStat(city.city, "SHIELD", parseInt(e.target.value))} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+
+</body>
+
+</html>
