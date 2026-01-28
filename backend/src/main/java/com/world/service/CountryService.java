@@ -23,5 +23,9 @@ public interface CountryService {
 
     CountryPanelResponse getCountryPanel(String username);
 
+    void minusNuke(AddForCountryRequest request);
+    void minusBudget(AddForCountryRequest request);
+    void minusSanctional(AddForCountryRequest request);
+
 
 }

@@ -39,25 +39,35 @@ public class CountryServiceImpl implements CountryService {
     );
 
     @Override
+    @Transactional
     public void addNuke(AddForCountryRequest request) {
-        Country country = getCountryByName(request.getCountryEnum());
-        country.setNukes(country.getNukes() + request.getAmount());
+        Country country = countryRepository.findByCountry(request.getCountryEnum()).orElseThrow();
+
+        int newValue = country.getNukes() + request.getAmount();
+        country.setNukes(Math.max(newValue, 0));
+
         countryRepository.save(country);
     }
 
     @Override
+    @Transactional
     public void setSanction(AddForCountryRequest request) {
-        Country country = getCountryByName(request.getCountryEnum());
-        int newSanctions = country.getSanctions() + request.getAmount();
+        Country country = countryRepository.findByCountry(request.getCountryEnum()).orElseThrow();
+
+        int amount = request.getAmount();
+        if (amount <= 0) {
+            return;
+        }
+
+        int newSanctions = country.getSanctions() + amount;
         country.setSanctions(newSanctions);
 
-        int damage = request.getAmount() * 10;
+        int damage = amount * 10;
 
         if (country.getCities() != null) {
             for (City city : country.getCities()) {
                 int newLife = city.getLife() - damage;
                 city.setLife(Math.max(newLife, 0));
-                cityRepository.save(city);
             }
         }
 
@@ -92,17 +102,53 @@ public class CountryServiceImpl implements CountryService {
         Country country = user.getCountry();
 
         List<String> playerSlots = new ArrayList<>(country.getPlayerSlots());
-        Set<City> cities = new HashSet<>(country.getCities());
 
-        return mapToCountryPanelResponse(country, cities, playerSlots);
+
+        return mapToCountryPanelResponse(country, playerSlots);
     }
 
-    private CountryPanelResponse mapToCountryPanelResponse(Country country,
-                                                           Set<City> cities,
-                                                           List<String> playerSlots) {
-        List<CityPanelResponse> cityResponses = cities
-            .stream()
-            .map(CityPanelResponse::new)
+    @Override
+    public void minusNuke(AddForCountryRequest request) {
+        Country country = countryRepository.findByCountry(request.getCountryEnum()).orElseThrow();
+        int newNukes = country.getNukes() - request.getAmount();
+        country.setNukes(Math.max(newNukes, 0)); // нельзя отрицать
+        countryRepository.save(country);
+    }
+
+    @Override
+    public void minusBudget(AddForCountryRequest request) {
+        Country country = countryRepository.findByCountry(request.getCountryEnum()).orElseThrow();
+        int newBudget = country.getBudget() - request.getAmount();
+        country.setBudget(Math.max(newBudget, 0));
+        countryRepository.save(country);
+    }
+
+    @Override
+    public void minusSanctional(AddForCountryRequest request) {
+        Country country = countryRepository.findByCountry(request.getCountryEnum()).orElseThrow();
+        int newSanctions = country.getSanctions() - request.getAmount();
+        country.setSanctions(Math.max(newSanctions, 0));
+
+        int restoreLife = request.getAmount() * 10;
+        if (country.getCities() != null) {
+            for (City city : country.getCities()) {
+                int newLife = city.getLife() + restoreLife;
+                city.setLife(newLife); // можно добавить ограничение сверху, если нужно
+                cityRepository.save(city);
+            }
+        }
+
+        countryRepository.save(country);
+    }
+
+
+    private CountryPanelResponse mapToCountryPanelResponse(
+        Country country,
+        List<String> playerSlots
+    ) {
+        List<CityPanelResponse> cities = country.getCities().stream()
+            .sorted(Comparator.comparing(c -> c.getCity().name()))
+            .map(this::mapToCityPanelResponse)
             .toList();
 
         return new CountryPanelResponse(
@@ -110,7 +156,7 @@ public class CountryServiceImpl implements CountryService {
             country.getNukes(),
             country.getSanctions(),
             country.getBudget(),
-            cityResponses,
+            cities,
             playerSlots
         );
     }
@@ -128,7 +174,7 @@ public class CountryServiceImpl implements CountryService {
             .map(country -> {
                 Set<City> cities = new HashSet<>(country.getCities());
                 List<String> playerSlots = new ArrayList<>(country.getPlayerSlots());
-                return mapToCountryPanelResponse(country, cities, playerSlots);
+                return mapToCountryPanelResponse(country, playerSlots);
             })
             .collect(Collectors.toList());
     }

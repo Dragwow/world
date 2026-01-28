@@ -4,12 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f008c05b-a74e-49b6-87a6-aa1a2bb9251f" name="Changes" comment="йй" />
+    <list default="true" id="f008c05b-a74e-49b6-87a6-aa1a2bb9251f" name="Changes" comment="123">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/world/cconf/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/world/cconf/CorsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/world/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/world/controller/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/world/entity/City.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/world/entity/City.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/world/service/CountryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/world/service/CountryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/world/service/impl/CountryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/world/service/impl/CountryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/world/cconf/CorsConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/world/cconf/CorsConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/world/controller/AdminController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/world/controller/AdminController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/world/entity/City.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/world/entity/City.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/world/service/CountryService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/world/service/CountryService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/com/world/service/impl/CountryServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/classes/com/world/service/impl/CountryServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/game-server-0.1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/game-server-0.1.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/game-server-0.1.0.jar.original" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/game-server-0.1.0.jar.original" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager" show_ignored="true" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -33,21 +50,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/yumimi/IdeaProjects/world",
-    "onboarding.tips.debug.path": "/home/yumimi/IdeaProjects/world/backend/src/main/java/com/world/Main.java"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/yumimi/IdeaProjects/world&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/yumimi/IdeaProjects/world/backend/src/main/java/com/world/Main.java&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.world.service.impl" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
   <component name="TaskManager">
@@ -74,11 +94,20 @@
       <option name="project" value="LOCAL" />
       <updated>1769570984840</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="123">
+      <option name="closed" value="true" />
+      <created>1769571271759</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1769571271759</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="йй" />
-    <option name="LAST_COMMIT_MESSAGE" value="йй" />
+    <MESSAGE value="123" />
+    <option name="LAST_COMMIT_MESSAGE" value="123" />
   </component>
 </project>

@@ -166,6 +166,8 @@
         function AdminPanel() {
             const [countries, setCountries] = React.useState([]);
 
+
+
             const loadCountries = async () => {
                 try {
                     const res = await fetch(`${API}/admin/get-all-countries?t=${Date.now()}`);
@@ -193,72 +195,278 @@
                 }
             };
 
-            const changeCountryValue = async (countryEnum, type, amount) => {
+            const minusBudget = async (countryEnum, amount) => {
                 try {
-                    const endpoint = type === "NUKE" ? "/admin/add-nuke" : "/admin/add-sanctional";
-                    await api(endpoint, "POST", { countryEnum, amount });
+                    await api("/admin/minus-budget", "POST", { countryEnum, amount });
                     loadCountries();
                 } catch (e) {
-                    console.error(e);
-                    alert("Ошибка изменения страны: " + e.message);
+                    alert(e.message);
                 }
             };
+
+            const addNuke = async (countryEnum, amount) => {
+                try {
+                    await api("/admin/add-nuke", "POST", { countryEnum, amount });
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
+            const minusNuke = async (countryEnum, amount) => {
+                try {
+                    await api("/admin/minus-nuke", "POST", { countryEnum, amount });
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
+            const recalcWorld = async () => {
+                try {
+                    await api("/admin/calculate-world");
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
+            const destroyCity = async (cityEnum) => {
+                try {
+                    await api("/admin/nuke-city", "POST", cityEnum);
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
+            const addSanctions = async (countryEnum, amount) => {
+                try {
+                    await api("/admin/add-sanctional", "POST", { countryEnum, amount });
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
+            const minusSanctions = async (countryEnum, amount) => {
+                try {
+                    await api("/admin/minus-sanctional", "POST", { countryEnum, amount });
+                    loadCountries();
+                } catch (e) {
+                    alert(e.message);
+                }
+            };
+
 
             if (countries.length === 0) return <div className="p-6">Загрузка...</div>;
 
             return (
+
                 <div className="p-6 h-screen overflow-y-auto">
                     <h1 className="text-2xl font-bold mb-4">Админ-панель</h1>
+                    <button
+                        className="bg-purple-600 text-white px-4 py-2 rounded mb-6"
+                        onClick={recalcWorld}
+                    >
+                        🔁 Пересчитать бюджет всех стран
+                    </button>
                     {countries.map(c => (
                         <div key={c.name} className="bg-white p-4 shadow mb-4 rounded">
                             <h2 className="font-bold text-xl">{c.name}</h2>
 
                             {/* Бюджет, Ядер, Санкции с кнопками */}
-                            <div className="flex gap-4 mt-2 items-center">
-                                <p>💰 Бюджет: {c.budget}</p>
-                                <button className="bg-green-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "BUDGET", 100)}>+100</button>
-                                <button className="bg-red-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "BUDGET", -100)}>-100</button>
+                            <div className="flex flex-col gap-2 mt-2">
+                                {/* Бюджет */}
+                                <div className="flex gap-4 items-center">
+                                    <p>💰 Бюджет: {c.budget}</p>
+                                    <button
+                                        className="bg-red-500 text-white px-2 rounded"
+                                        onClick={() => minusBudget(c.country, 100)}
+                                    >
+                                        -100
+                                    </button>
+                                </div>
+
+                                {/* Ядерное оружие */}
+                                <div className="flex gap-4 items-center">
+                                    <p>💣 Ядер: {c.nukes}</p>
+                                    <button
+                                        className="bg-red-500 text-white px-2 rounded"
+                                        onClick={() => addNuke(c.country, 1)}
+                                    >
+                                        -1
+                                    </button>
+                                    <button
+                                        className="bg-green-500 text-white px-2 rounded"
+                                        onClick={() => minusNuke(c.country, 1)}
+                                    >
+                                        +1
+                                    </button>
+                                </div>
+
+                                {/* Санкции */}
+                                <div className="flex gap-2 items-center">
+                                    <p>🚫 Санкций: {c.sanctions}</p>
+                                    <input
+                                        type="number"
+                                        className="border px-2 py-1 w-20"
+                                        placeholder="N"
+                                        id={`sanction-${c.name}`}
+                                    />
+                                    <button
+                                        className="bg-red-500 text-white px-3 rounded"
+                                        onClick={() => {
+                                            const val = Number(document.getElementById(`sanction-${c.name}`).value);
+                                            if (!val) return;
+                                            minusSanctions(c.country, -val);
+                                        }}
+                                    >
+                                        - Добавить
+                                    </button>
+                                    <button
+                                        className="bg-orange-600 text-white px-3 rounded"
+                                        onClick={() => {
+                                            const val = Number(document.getElementById(`sanction-${c.name}`).value);
+                                            if (!val) return;
+                                            addSanctions(c.country, val);
+                                        }}
+                                    >
+                                        + Добавить
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex gap-4 mt-2 items-center">
-                                <p>💣 Ядер: {c.nukes}</p>
-                                <button className="bg-green-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "NUKE", 1)}>+1</button>
-                                <button className="bg-red-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "NUKE", -1)}>-1</button>
-                            </div>
-                            <div className="flex gap-4 mt-2 items-center">
-                                <p>🚫 Санкций: {c.sanctions}</p>
-                                <button className="bg-green-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "SANCTION", 1)}>+1</button>
-                                <button className="bg-red-500 text-white px-2 rounded"
-                                    onClick={() => changeCountryValue(c.name, "SANCTION", -1)}>-1</button>
-                            </div>
+
 
                             {/* Города */}
                             <div className="grid md:grid-cols-2 gap-4 mt-4">
-                                {[...c.cities].sort((a,b) => a.name.localeCompare(b.name)).map(city => (
-                                    <div key={city.id} className="border p-3 rounded bg-gray-50">
-                                        <b>{city.name}</b>
+                                {[...c.cities].sort((a, b) => a.name.localeCompare(b.name)).map(city => (
+                                    <div key={city.city} className="border p-3 rounded bg-gray-50">
+                                        <b>{city.city}</b>
                                         <div className="mt-2">
                                             <div>Экономика: {city.economy}</div>
-                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                            <input
+                                                type="number"
+                                                className="border px-1 py-0.5 mt-1 w-20"
                                                 defaultValue={city.economy}
-                                                onBlur={e => changeStat(city.city, "ECONOMY", parseInt(e.target.value))} />
+                                                id={`eco-${city.city}`}
+                                            />
+                                            <button
+                                                className="ml-2 bg-blue-500 text-white px-2 rounded"
+                                                onClick={() =>
+                                                    changeStat(
+                                                        city.city,
+                                                        "ECONOMY",
+                                                        Number(document.getElementById(`eco-${city.city}`).value)
+                                                    )
+                                                }
+                                            >
+                                                Отправить
+                                            </button>
                                         </div>
                                         <div className="mt-2">
                                             <div>Экология: {city.ecology}</div>
-                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                            <input
+                                                type="number"
+                                                className="border px-1 py-0.5 mt-1 w-20"
                                                 defaultValue={city.ecology}
-                                                onBlur={e => changeStat(city.city, "ECOLOGY", parseInt(e.target.value))} />
+                                                id={`eco2-${city.city}`}
+                                            />
+                                            <button
+                                                className="ml-2 bg-blue-500 text-white px-2 rounded"
+                                                onClick={() =>
+                                                    changeStat(
+                                                        city.city,
+                                                        "ECOLOGY",
+                                                        Number(document.getElementById(`eco2-${city.city}`).value)
+                                                    )
+                                                }
+                                            >
+                                                Отправить
+                                            </button>
                                         </div>
                                         <div className="mt-2">
                                             <div>Щит: {city.shield}</div>
-                                            <input type="number" className="border px-1 py-0.5 mt-1 w-20"
+                                            <input
+                                                type="number"
+                                                className="border px-1 py-0.5 mt-1 w-20"
                                                 defaultValue={city.shield}
-                                                onBlur={e => changeStat(city.city, "SHIELD", parseInt(e.target.value))} />
+                                                id={`shield-${city.city}`}
+                                            />
+                                            <button
+                                                className="ml-2 bg-blue-500 text-white px-2 rounded"
+                                                onClick={() =>
+                                                    changeStat(
+                                                        city.city,
+                                                        "SHIELD",
+                                                        Number(document.getElementById(`shield-${city.city}`).value)
+                                                    )
+                                                }
+                                            >
+                                                Отправить
+                                            </button>
                                         </div>
+                                        <div className="mt-2">
+                                            <div>Доход: {city.income}</div>
+                                            <input
+                                                type="number"
+                                                className="border px-1 py-0.5 mt-1 w-20"
+                                                defaultValue={city.income}
+                                                id={`income-${city.city}`}
+                                            />
+                                            <button
+                                                className="ml-2 bg-blue-500 text-white px-2 rounded"
+                                                onClick={() =>
+                                                    changeStat(
+                                                        city.city,
+                                                        "INCOME",
+                                                        Number(document.getElementById(`income-${city.city}`).value)
+                                                    )
+                                                }
+                                            >
+                                                Отправить
+                                            </button>
+                                        </div>
+                                        <div className="mt-2">
+                                            <div>Жизнь: {city.life}</div>
+                                            <input
+                                                type="number"
+                                                className="border px-1 py-0.5 mt-1 w-20"
+                                                defaultValue={city.life}
+                                                id={`life-${city.city}`}
+                                            />
+                                            <button
+                                                className="ml-2 bg-blue-500 text-white px-2 rounded"
+                                                onClick={() =>
+                                                    changeStat(
+                                                        city.city,
+                                                        "LIFE",
+                                                        Number(document.getElementById(`life-${city.city}`).value)
+                                                    )
+                                                }
+                                            >
+                                                Отправить
+                                            </button>
+                                        </div>
+                                        <div className="mt-3 flex items-center gap-3">
+                                            <span className={city.destroyed ? "text-red-600 font-bold" : "text-green-600"}>
+                                                {city.destroyed ? "💥 Уничтожен" : "🏙️ Цел"}
+                                            </span>
+
+                                            {!city.destroyed && (
+                                                <button
+                                                    className="bg-red-700 text-white px-3 py-1 rounded"
+                                                    onClick={() => destroyCity(city.city)}
+                                                >
+                                                    Уничтожить город
+                                                </button>
+                                            )}
+                                        </div>
+
+
+
+
+
                                     </div>
                                 ))}
                             </div>

@@ -56,6 +56,24 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/minus-nuke")
+    public ResponseEntity<Void> minusNuke(@RequestBody AddForCountryRequest request){
+        countryService.minusNuke(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/minus-budget")
+    public ResponseEntity<Void> minusBudget(@RequestBody AddForCountryRequest request){
+        countryService.minusBudget(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/minus-sanctional")
+    public ResponseEntity<Void> minusSanctional(@RequestBody AddForCountryRequest request){
+        countryService.minusSanctional(request);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/get-all-countries")
     public List<CountryPanelResponse> getAllCountries() {
         return countryService.getAllCountriesPanel();

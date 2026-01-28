@@ -33,6 +33,7 @@ com/world/service/impl/CityServiceImpl.class
 com/world/repository/CountryRepository.class
 com/world/StartApplication.class
 com/world/service/impl/UserServiceImpl.class
+com/world/cconf/CorsConfig$1.class
 com/world/controller/CountryPanelController.class
 com/world/repository/CityRepository.class
 com/world/cconf/CorsConfig.class

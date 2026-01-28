@@ -42,7 +42,7 @@ public class City extends BaseEntity implements Serializable {
         name = s;
         baseIncome = 100;
         income = 100;
-        life = 50;
+        life = 54;
         destroyed = false;
     }
 
